@@ -1,0 +1,31 @@
+name: Docker Build & Push to GHCR
+
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch: # Manuel çalıştırmak istersen buton çıkarır
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: 📥 Kaynak Kodu Çek
+        uses: actions/checkout@v4
+
+      - name: 🔑 GitHub Paketlerine (GHCR) Giriş Yap
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🚀 Docker Build ve Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/juice-shop:latest
